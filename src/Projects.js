@@ -4,9 +4,16 @@ import ToDo from './ToDo';
 export default class Projects {
     constructor() {
         this.projects = [];
-        this.projects.push(new Project('Default', 'Default Inbox'));
-        this.projects.push(new Project('Today', 'Due today'));
-        this.projects.push(new Project('This week', 'due this week'));
+    }
+
+    getProjects() {
+        return this.projects;
+    }
+
+    getProjectByName(project) {
+        return this.projects.find(
+            findProject => project === findProject.getName()
+        );
     }
 
     addProject(project) {

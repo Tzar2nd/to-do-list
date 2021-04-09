@@ -1,0 +1,114 @@
+
+*,
+*::after,
+*::before {
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 1.6em;
+}
+
+body {
+
+}
+
+h2 {
+    font-size: 0.8em;
+    margin: .2rem 0;
+}
+
+h3 {
+    font-size: 0.6rem;
+    margin: .1rem 0;
+}
+
+button {
+    border: none;
+    cursor: pointer;
+    outline: none;
+    border-radius: 2px;
+    margin: .2rem 0;
+    padding: .2rem;
+    text-align: left;
+    background: gray;
+}
+
+button:hover {
+    outline: 3px solid red;
+    background: lightgray;
+}
+
+header {
+    background: green;
+    padding: .5rem;
+    max-height: 100px;
+}
+
+#content-container {
+    display: flex;
+    height: calc(100vh);
+}
+
+#toolbar {
+    display: flex;
+    flex-direction: column;
+    background: yellow;
+    min-width: 175px;
+    padding: 0.2rem;
+}
+
+#content {
+    background: red;
+    flex-grow: 1;
+    padding: 1rem;
+}
+
+#content-header {
+    display: flex;
+    background: green;
+}
+
+#content-header > button {
+    margin: 1rem;
+}
+
+#content-body {
+    background: blue;
+    flex-grow: 1;
+    padding: 1rem;
+}
+
+.button-project {
+    font-size: 0.8rem;
+    border-radius: 5px;
+}
+
+.new-project-button {
+
+}
+
+.new-project-container {
+    display: flex;
+    flex-direction: column;
+    padding: .5rem; 
+    justify-items: end;
+}
+
+.two-buttons {
+    margin: auto; 
+}
+
+.hidden {
+    display: none; 
+}
+
+.button-todo {
+    background: rgba(0, 0, 0, 0.5);
+    margin: 0.5rem;
+}
+
+.fas {
+    padding: .2rem;
+}

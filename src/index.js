@@ -1,2 +1,2 @@
-import DOM from "./DOM" 
+import DOM from "./DOM";
 DOM.loadUI();
