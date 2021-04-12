@@ -2,36 +2,23 @@ import Projects from './Projects';
 import Project from './Project';
 import ToDo from './ToDo';
 import ToDoApp from './ToDo';
+import Storage from './Storage';
 
 export default class DOM {
 
     static loadUI() {
+        //Storage.deleteProject("test2");
         DOM.loadProjects();
-        DOM.displayProjects();
-        DOM.attachListeners();
+        DOM.attachProjectButtonListeners();
     }
 
     static loadProjects() {
-        let projects = Storage.getToDoState().getProjects()
-
-        projects.forEach((project) => { DOM.createProject(project.getName()) })
+        let projects = Storage.getToDoState().getProjects();
+        console.table(projects);
+        projects.forEach((project) => DOM.displayProject(project.getName()))
     }
 
-    static displayProjects() {
-        const projects = document.getElementById('projects');
-
-        this.projects.getProjects().forEach((project) => {
-            projects.innerHTML += `
-            <div>
-            <button class='button-project'>
-                <i class="fas fa-list-ul"></i>
-                    <span>${project.getName()}</span>
-                <i class="fas fa-times"></i>
-            </button>
-            </div>`;
-        });
-    }
-
+    // Display HTML
     static displayProject(projectName) {
         let projects = document.getElementById('projects');
         
@@ -43,42 +30,33 @@ export default class DOM {
         </button>
         </div>`);
         
-        // add button event listener
-        let button = document.getElementById('projects').lastChild.getElementsByClassName('button-project')[0];
-        button.addEventListener("click", e => DOM.displayProject(button));
+        let button = document.getElementById('projects').lastChild.querySelector('.button-project');
+        button.addEventListener('click', e => DOM.displayProjectToDos(projectName));
     }
 
-    static attachListeners() {
-        let projectButtons = document.getElementsByClassName('button-project');
-        Array.from(projectButtons).forEach((projectButton) => {
-            projectButton.addEventListener("click", e => DOM.displayProject(projectButton));
-        });
+    static toggleHidden(elementName) {
+        const element = document.querySelector(elementName);
 
-        let newProjectButton = document.getElementById('new-project-button');
-        newProjectButton.addEventListener("click", e => {
-            document.getElementsByClassName("new-project-container")[0].classList.remove('hidden');
-        });
+        if (element.classList.contains('hidden')) { 
+            element.classList.remove('hidden');
+        } else {
+            element.classList.add('hidden');
+        }
+    }
+    
+    static attachProjectButtonListeners() {
+        const newProjectButton = document.getElementById('new-project-button');
+        const projectCancelButton = document.getElementById('button-cancel-project');
+        const projectSaveButton = document.getElementById('button-save-project');
+        const newToDoButton = document.getElementById('button-new-todo');
+        const toDoSaveButton = document.getElementById('button-save-todo');
+        const toDoCancelButton = document.getElementById('button-cancel-todo');
+        
+        newProjectButton.addEventListener("click", e => DOM.toggleHidden('.new-project-container'));
+        projectCancelButton.addEventListener("click", e => DOM.clearNewProjectInput());
+        projectSaveButton.addEventListener("click", e => DOM.createAndDisplayProject());
 
-        let projectCancelButton = document.getElementById('button-cancel-project');
-        projectCancelButton.addEventListener("click", e => {
-            DOM.clearNewProjectInput();
-        });
-
-        let projectSaveButton = document.getElementById('button-save-project');
-        projectSaveButton.addEventListener("click", e => {
-            let newProject = DOM.createProject();
-            if (newProject) {
-                DOM.clearNewProjectInput();
-                DOM.displayProject(newProject.getName());
-            }
-        });
-
-        let newToDoButton = document.getElementById('button-new-todo');
-        newToDoButton.addEventListener("click", e => {
-            document.getElementsByClassName("new-todo-container")[0].classList.remove('hidden');
-        });
-
-        let toDoSaveButton = document.getElementById('button-save-todo');
+        newToDoButton.addEventListener("click", e => DOM.toggleHidden('.new-todo-container'));
         toDoSaveButton.addEventListener("click", e => {
             if (DOM.createToDo()) {
                 DOM.clearNewToDoInput();
@@ -88,16 +66,30 @@ export default class DOM {
             }
         });
         
-        let toDoCancelButton = document.getElementById('button-cancel-todo');
-        toDoCancelButton.addEventListener("click", e => {
-            DOM.clearNewToDoInput();
-        })
+        toDoCancelButton.addEventListener("click", e => DOM.clearNewToDoInput())
     }
 
-    static displayProject(projectButton) { 
-        let projectText = projectButton.querySelector('span').innerText;
+    static createAndDisplayProject() {
+        let projectName = document.getElementById('input-project-name').value;
+        if (DOM.createNewProject(projectName)) {
+            DOM.displayProject(projectName);
+            DOM.displayProjectToDos(projectName);
+            DOM.clearNewProjectInput();
+        }
+    }
+    static createNewProject(projectName) {
+
+        if (projectName === '') { 
+            alert("Please enter a project name");
+            return; 
+        }
+
+        Storage.addProject(new Project(projectName));
+    }
+
+    static displayProjectToDos(projectName) { 
         DOM.clearToDos();
-        DOM.displayToDos(projectText);
+        DOM.displayToDos(projectName);
     }
 
     static createToDo() {
@@ -126,16 +118,7 @@ export default class DOM {
     }
 
     static createProject() {
-        let projectName = document.getElementById('input-project-name').value;
 
-        if (projectName === '') {
-            alert("Please enter a project name");
-            return false; 
-        }
-
-        let project = new Project(projectName, "");
-        this.projects.addProject(project);
-        return project; 
     }
 
     static clearToDos() {
@@ -146,17 +129,23 @@ export default class DOM {
     static displayToDos(projectName) {
         document.getElementById('project-name').innerText = projectName;
         const display = document.getElementById('content-body');
-        let project = this.projects.getProjectByName(projectName);
-        let todos = project.getToDos();
+        const project = Storage.getToDoState().getProject(projectName);
+        console.log(project);
+        const todos = project.getToDos();
+        console.log(todos);
+
+        todos.forEach(todo => { 
+            console.log(todo);
+        });
 
         todos.forEach(todo => { 
             display.innerHTML += `
             <button class='button-todo'>
                 <i class="fas fa-list-ul"></i>
-                    <span>${todo.getTitle()} </span>
+                    <span>${ todo.getTitle() } </span>
                 <i class="fas fa-times"></i>
             </button>`;
-        })
+        });
 
         DOM.attachToDoListeners(); 
     }
@@ -170,19 +159,4 @@ export default class DOM {
         });
     }
     
-    static loadDefaultData() {
-        let note1 = new ToDo("firstNote", "Hello", "01/03/2021 00:00", 1, "First to-do list task");
-        let note2 = new ToDo("secondNote", "Hellox2", "12/03/2021 00:00", 1, "Second to-do list task");
-        let note3 = new ToDo("firstNote2ndProject", "Hi", "02/03/2021 00:00", 1, "Another task");
-        
-        let project1 = new Project("First Project", "1st Description");
-        let project2 = new Project("Second Project", "1st Description");
-    
-        project1.addToDo(note1);
-        project1.addToDo(note2);
-        project2.addToDo(note3);
-        this.projects.addProject(project1);
-        this.projects.addProject(project2);
-    }
-
 }

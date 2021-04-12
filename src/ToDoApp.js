@@ -7,7 +7,10 @@ import ToDo from './ToDo';
 export default class ToDoApp {
     constructor() {
         this.projects = [];
-        this.projects.push(new Project('Default'));
+        let defaultProject = new Project('Default Project', 'Default Project');
+        let defaultNote = new ToDo("default note", "Hello World", "01/03/2021 00:00", 1, "First to-do list task");
+        defaultProject.addToDo(defaultNote);
+        this.projects.push(defaultProject);
     }
 
     setProjects(projects) {
@@ -26,11 +29,11 @@ export default class ToDoApp {
         this.projects.push(project);
     }
 
-    deleteProject(project) {
-        const projectDelete = this.projects.find(
-            (project) => { project.getName() === projectName }
+    deleteProject(projectDelete) {
+        const project = this.projects.find(
+            (project) => { project.getName() === projectDelete }
         );
-        this.projects.splice(this.projects.indexOf(projectDelete),1);
+        this.projects.splice(this.projects.indexOf(project),1);
     }
 }
 

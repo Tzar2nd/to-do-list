@@ -20,6 +20,10 @@ export default class Project {
         return this.dueDate;
     }
 
+    setToDos(toDos) {
+        this.toDos = toDos; 
+    }
+
     getToDos() {
         return this.toDos;
     }
@@ -31,4 +35,6 @@ export default class Project {
     getToDos() {
         return this.toDos; 
     }
+
+    
 }
