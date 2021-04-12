@@ -30,11 +30,18 @@ export default class Project {
 
     addToDo(todo) {
         this.toDos.push(todo);
+        console.log('adding todo');
     }
 
     getToDos() {
         return this.toDos; 
     }
 
-    
+    deleteToDo(toDoName) {
+        const todo = this.toDos.find(
+            (todo) => { todo.getTitle() === toDoName }
+        );
+        this.toDos.splice(this.toDos.indexOf(todo),1);
+    }
+
 }

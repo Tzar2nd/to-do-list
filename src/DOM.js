@@ -1,7 +1,5 @@
-import Projects from './Projects';
 import Project from './Project';
 import ToDo from './ToDo';
-import ToDoApp from './ToDo';
 import Storage from './Storage';
 
 export default class DOM {
@@ -10,28 +8,33 @@ export default class DOM {
         //Storage.deleteProject("test2");
         DOM.loadProjects();
         DOM.attachProjectButtonListeners();
+        DOM.attachToDoEventListeners();
+        DOM.selectDefaultProject();
+    }
+
+    static selectDefaultProject() {
+        DOM.clearToDos();
+        DOM.loadToDos('Default Project');
     }
 
     static loadProjects() {
         let projects = Storage.getToDoState().getProjects();
-        console.table(projects);
         projects.forEach((project) => DOM.displayProject(project.getName()))
     }
 
-    // Display HTML
     static displayProject(projectName) {
         let projects = document.getElementById('projects');
         
         projects.insertAdjacentHTML('beforeend', `<div>
-        <button class='button-project'>
+        <button class='button-project' id='project-${projectName}'>
             <i class="fas fa-list-ul"></i>
                 <span>${projectName}</span>
-            <i class="fas fa-times"></i>
+            <i class="fas fa-times delete-project"></i>
         </button>
         </div>`);
         
         let button = document.getElementById('projects').lastChild.querySelector('.button-project');
-        button.addEventListener('click', e => DOM.displayProjectToDos(projectName));
+        button.addEventListener('click', e => DOM.handleProjectClick(e, projectName));
     }
 
     static toggleHidden(elementName) {
@@ -48,62 +51,82 @@ export default class DOM {
         const newProjectButton = document.getElementById('new-project-button');
         const projectCancelButton = document.getElementById('button-cancel-project');
         const projectSaveButton = document.getElementById('button-save-project');
-        const newToDoButton = document.getElementById('button-new-todo');
-        const toDoSaveButton = document.getElementById('button-save-todo');
-        const toDoCancelButton = document.getElementById('button-cancel-todo');
         
         newProjectButton.addEventListener("click", e => DOM.toggleHidden('.new-project-container'));
         projectCancelButton.addEventListener("click", e => DOM.clearNewProjectInput());
         projectSaveButton.addEventListener("click", e => DOM.createAndDisplayProject());
+    }
 
-        newToDoButton.addEventListener("click", e => DOM.toggleHidden('.new-todo-container'));
-        toDoSaveButton.addEventListener("click", e => {
-            if (DOM.createToDo()) {
-                DOM.clearNewToDoInput();
-                DOM.clearToDos();
-                let projectName = document.getElementById('project-name').textContent;
-                DOM.displayToDos(projectName);
-            }
-        });
-        
-        toDoCancelButton.addEventListener("click", e => DOM.clearNewToDoInput())
+    static attachToDoEventListeners() {
+        const newToDoButton = document.getElementById('button-new-todo');
+        const toDoSaveButton = document.getElementById('button-save-todo');
+        const toDoCancelButton = document.getElementById('button-cancel-todo');
+
+        newToDoButton.addEventListener('click', e => DOM.toggleHidden('.new-todo-container'));
+        toDoSaveButton.addEventListener('click', e => DOM.createAndDisplayToDo());
+        toDoCancelButton.addEventListener('click', e => DOM.clearNewToDoInput());
+    }
+
+    static createAndDisplayToDo() {
+        let projectName = document.getElementById('project-name').textContent;
+        if (DOM.createToDo(projectName)) {
+            DOM.clearNewToDoInput();
+            DOM.clearToDos();
+            DOM.loadToDos(projectName);
+        }
     }
 
     static createAndDisplayProject() {
         let projectName = document.getElementById('input-project-name').value;
         if (DOM.createNewProject(projectName)) {
             DOM.displayProject(projectName);
-            DOM.displayProjectToDos(projectName);
+            DOM.clearToDos();
+            DOM.loadToDos(projectName);
             DOM.clearNewProjectInput();
         }
     }
+
     static createNewProject(projectName) {
 
         if (projectName === '') { 
             alert("Please enter a project name");
-            return; 
+            return false;
+        }
+
+        if (Storage.getToDoState().contains(projectName)) {
+            alert("ToDo already exists, please enter a new one");
+            return false; 
         }
 
         Storage.addProject(new Project(projectName));
+        return true; 
     }
 
-    static displayProjectToDos(projectName) { 
+    static handleProjectClick(e, projectName) { 
+        if (e.target.classList.contains('delete-project')) {
+            DOM.deleteProject(projectName);
+            DOM.selectDefaultProject();
+            return;
+        }
         DOM.clearToDos();
-        DOM.displayToDos(projectName);
+        DOM.loadToDos(projectName);
     }
 
-    static createToDo() {
-        let toDoName = document.getElementById('input-todo-name').value;
-        let projectName = document.getElementById('project-name').textContent;
-        let project = this.projects.getProjectByName(projectName);
+    static deleteProject(projectName) {
+        Storage.deleteProject(projectName);
+        document.getElementById(`project-${projectName}`).remove();
+    }
+
+    static createToDo(projectName) {
+        const toDoName = document.getElementById('input-todo-name').value;
 
         if (toDoName === '') { 
             alert("Please enter a task name");
             return false;
         }
 
-        let todo = new ToDo(toDoName);
-        project.addToDo(todo);
+        Storage.addToDo(projectName, new ToDo(toDoName));
+        
         return true; 
     }
 
@@ -111,14 +134,10 @@ export default class DOM {
         document.getElementsByClassName('new-todo-container')[0].classList.add('hidden');
         document.getElementById("input-todo-name").value = '';
     }
-
+    
     static clearNewProjectInput() {
         document.getElementsByClassName("new-project-container")[0].classList.add('hidden');
         document.getElementById('input-project-name').value = '';
-    }
-
-    static createProject() {
-
     }
 
     static clearToDos() {
@@ -126,37 +145,49 @@ export default class DOM {
         content.innerHTML = '';
     }
 
-    static displayToDos(projectName) {
+    static loadToDos(projectName) {
         document.getElementById('project-name').innerText = projectName;
+        const todos = Storage.getToDoState().getProject(projectName).getToDos();
+        todos.forEach(todo => DOM.displayToDo(projectName, todo));
+    }
+
+    static displayToDo(projectName, todo) {
         const display = document.getElementById('content-body');
-        const project = Storage.getToDoState().getProject(projectName);
-        console.log(project);
-        const todos = project.getToDos();
-        console.log(todos);
 
-        todos.forEach(todo => { 
-            console.log(todo);
-        });
+        display.insertAdjacentHTML('beforeend',
+        `<button class='button-todo' id='todo-${todo.getTitle()}'>
+        <div>
+            <i class="fas fa-list-ul"></i>
+        </div>
+        <div>
+            <span>${ todo.getTitle() } </span>
+        </div>
+        <div>
+            <i class="fas fa-times delete-todo"></i>
+            </div>
+        </button>`);
+        console.log(display);
+        let button = display.lastChild.querySelector('.delete-todo');
+        button.addEventListener('click', e => DOM.handleToDoClick(e, projectName, todo.getTitle()));
 
-        todos.forEach(todo => { 
-            display.innerHTML += `
-            <button class='button-todo'>
-                <i class="fas fa-list-ul"></i>
-                    <span>${ todo.getTitle() } </span>
-                <i class="fas fa-times"></i>
-            </button>`;
-        });
-
-        DOM.attachToDoListeners(); 
     }
 
-    static attachToDoListeners() {
-        let toDoButtons = document.getElementsByClassName('button-todo');
-        Array.from(toDoButtons).forEach((toDoButton) => {
-            toDoButton.addEventListener("click", e => { 
-                console.log('clicked'); 
-            });
-        });
+    static handleToDoClick(e, projectName, toDoName) {
+        if (e.target.classList.contains('delete-todo')) {
+            DOM.deleteToDo(projectName, toDoName);
+            DOM.clearToDos();
+            DOM.loadToDos(projectName);
+            return;
+        }
+        
+        console.log(`${projectName} todo's clicked`);   
     }
+
+    static deleteToDo(projectName, toDoName) {
+        Storage.deleteToDo(projectName, toDoName);
+        document.getElementById(`todo-${toDoName}`).remove();
+    }
+
+
     
 }

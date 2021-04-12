@@ -24,15 +24,20 @@ export default class ToDoApp {
     getProject(projectName) {
         return this.projects.find((project) => project.getName() === projectName);
     }
+    
+    contains(projectName) {
+        return this.projects.some(project => project.getName() === projectName);
+    }
 
     addProject(project) {
         this.projects.push(project);
     }
 
     deleteProject(projectDelete) {
-        const project = this.projects.find(
-            (project) => { project.getName() === projectDelete }
-        );
+        console.log('trying to delete' + projectDelete);
+        const project = this.projects.find(project => project.getName() === projectDelete);
+
+        console.log(`definately deleting ${project}`);
         this.projects.splice(this.projects.indexOf(project),1);
     }
 }
