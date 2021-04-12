@@ -3,12 +3,13 @@
 
 import Project from './Project';
 import ToDo from './ToDo';
+import { format, parseISO } from 'date-fns'
 
 export default class ToDoApp {
     constructor() {
         this.projects = [];
         let defaultProject = new Project('Default Project', 'Default Project');
-        let defaultNote = new ToDo("default note", "Hello World", "01/03/2021 00:00", 1, "First to-do list task");
+        let defaultNote = new ToDo("default note", "Hello World", "01/03/2021", 1, "First to-do list task");
         defaultProject.addToDo(defaultNote);
         this.projects.push(defaultProject);
     }

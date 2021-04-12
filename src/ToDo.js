@@ -13,4 +13,7 @@ export default class ToDo {
     getDueDate() { return this.dueDate; }
     getPriority() { return this.priority; }
     getNotes() { return this.notes }
+    getFormattedDate() { 
+        //return `${this.dueDate.split('/')[0]} / ${this.dueDate.split('/')[1]} / ${this.dueDate.split('/')[2]}`;
+    }
 }

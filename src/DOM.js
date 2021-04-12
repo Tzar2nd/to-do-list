@@ -1,6 +1,7 @@
 import Project from './Project';
 import ToDo from './ToDo';
 import Storage from './Storage';
+import { format, parseISO } from 'date-fns';
 
 export default class DOM {
 
@@ -154,6 +155,10 @@ export default class DOM {
     static displayToDo(projectName, todo) {
         const display = document.getElementById('content-body');
 
+        console.log(parseISO(todo.getDueDate()));
+        // let formattedDate = format(parseISO(todo.getFormattedDate()), "dd/MM/yyyy");
+        // console.log(formattedDate);
+
         display.insertAdjacentHTML('beforeend',
         `<button class='button-todo' id='todo-${todo.getTitle()}'>
         <div>
@@ -163,6 +168,8 @@ export default class DOM {
             <span>${ todo.getTitle() } </span>
         </div>
         <div>
+            <p class="due-date" id="due-date"></p>
+            <input type="date" class="input-date" value='2021-05-01'>
             <i class="fas fa-times delete-todo"></i>
             </div>
         </button>`);
