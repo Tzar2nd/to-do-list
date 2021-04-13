@@ -71,10 +71,6 @@ header {
     background: green;
 }
 
-#content-header > button {
-    margin: 1rem;
-}
-
 #content-body {
     display: flex;
     flex-direction: column;
@@ -116,12 +112,30 @@ header {
     display: none; 
 }
 
+#button-new-todo {
+    margin: .2rem .2rem;
+}
+
 .button-todo {
     display: flex;
     justify-content: space-between;
     align-items: center;
     background: rgba(0, 0, 0, 0.5);
     margin: 0.5rem;
+    color: white;
+}
+
+.todo-buttons-right {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.todo-priority {
+    margin: 0 .5rem;
+    padding: 4px;
+    border-radius: 2px;
+    background: orange;
 }
 
 .fas {
