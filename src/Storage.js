@@ -34,21 +34,18 @@ export default class Storage {
 
     static addProject(project) {
         const toDoApp = Storage.getToDoState();
-        console.log(`adding ${project.getName()}`);
         toDoApp.addProject(project);
         Storage.saveToDoState(toDoApp);
     }
 
     static deleteProject(projectName) {
         const toDoApp = Storage.getToDoState();
-        console.log(`deleting ${projectName}`);
         toDoApp.deleteProject(projectName);
         Storage.saveToDoState(toDoApp);
     }
 
     static deleteToDo(projectName, toDoName) {
         const toDoApp = Storage.getToDoState();
-        console.log(`deleting todo: ${toDoName}`);
         toDoApp.getProject(projectName).deleteToDo(toDoName);
         Storage.saveToDoState(toDoApp);
     }
@@ -56,6 +53,13 @@ export default class Storage {
     static addToDo(projectName, toDo) {
         const toDoApp = Storage.getToDoState();
         toDoApp.getProject(projectName).addToDo(toDo);
+        Storage.saveToDoState(toDoApp);
+    }
+
+    static setToDoDate(projectName, toDoName, dueDate) {
+        const toDoApp = Storage.getToDoState(); 
+        const todo = toDoApp.getProject(projectName).getToDo(toDoName);
+        todo.setDueDate(dueDate);
         Storage.saveToDoState(toDoApp);
     }
 

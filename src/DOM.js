@@ -1,7 +1,7 @@
 import Project from './Project';
 import ToDo from './ToDo';
 import Storage from './Storage';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 
 export default class DOM {
 
@@ -10,12 +10,12 @@ export default class DOM {
         DOM.loadProjects();
         DOM.attachProjectButtonListeners();
         DOM.attachToDoEventListeners();
-        DOM.selectDefaultProject();
+        DOM.displaySpecificProjectsToDos('Default Project');
     }
 
-    static selectDefaultProject() {
+    static displaySpecificProjectsToDos(projectName) {
         DOM.clearToDos();
-        DOM.loadToDos('Default Project');
+        DOM.loadToDos(projectName);
     }
 
     static loadProjects() {
@@ -71,9 +71,9 @@ export default class DOM {
     static createAndDisplayToDo() {
         let projectName = document.getElementById('project-name').textContent;
         if (DOM.createToDo(projectName)) {
-            DOM.clearNewToDoInput();
             DOM.clearToDos();
             DOM.loadToDos(projectName);
+            DOM.clearNewToDoInput();
         }
     }
 
@@ -95,7 +95,7 @@ export default class DOM {
         }
 
         if (Storage.getToDoState().contains(projectName)) {
-            alert("ToDo already exists, please enter a new one");
+            alert("Please enter a unique project name");
             return false; 
         }
 
@@ -106,7 +106,7 @@ export default class DOM {
     static handleProjectClick(e, projectName) { 
         if (e.target.classList.contains('delete-project')) {
             DOM.deleteProject(projectName);
-            DOM.selectDefaultProject();
+            DOM.displaySpecificProjectsToDos('Default Project');
             return;
         }
         DOM.clearToDos();
@@ -126,8 +126,12 @@ export default class DOM {
             return false;
         }
 
+        if (Storage.getToDoState().getProject(projectName).contains(toDoName)) {
+            alert("Please enter a unique task name");
+            return false; 
+        }
+
         Storage.addToDo(projectName, new ToDo(toDoName));
-        
         return true; 
     }
 
@@ -154,29 +158,28 @@ export default class DOM {
 
     static displayToDo(projectName, todo) {
         const display = document.getElementById('content-body');
-
-        console.log(parseISO(todo.getDueDate()));
-        // let formattedDate = format(parseISO(todo.getFormattedDate()), "dd/MM/yyyy");
-        // console.log(formattedDate);
+        const dueDate = todo.getDueDate();
 
         display.insertAdjacentHTML('beforeend',
         `<button class='button-todo' id='todo-${todo.getTitle()}'>
         <div>
-            <i class="fas fa-list-ul"></i>
+            <i class="far fa-check-square"></i>
         </div>
         <div>
             <span>${ todo.getTitle() } </span>
         </div>
-        <div>
+        <div class='todo-buttons-right'>
+            <p class='todo-priority'>${ todo.getPriority() }</p>
             <p class="due-date" id="due-date"></p>
-            <input type="date" class="input-date" value='2021-05-01'>
+            <input type="date" class="input-date" value='${dueDate}'>
             <i class="fas fa-times delete-todo"></i>
-            </div>
+        </div>
         </button>`);
-        console.log(display);
-        let button = display.lastChild.querySelector('.delete-todo');
-        button.addEventListener('click', e => DOM.handleToDoClick(e, projectName, todo.getTitle()));
+        let deleteButton = display.lastChild.querySelector('.delete-todo');
+        deleteButton.addEventListener('click', e => DOM.handleToDoClick(e, projectName, todo.getTitle()));
 
+        let dateInput = display.lastChild.querySelector('.input-date');
+        dateInput.addEventListener('change', e => DOM.setToDoDate(e, projectName, todo.getTitle()));
     }
 
     static handleToDoClick(e, projectName, toDoName) {
@@ -185,9 +188,7 @@ export default class DOM {
             DOM.clearToDos();
             DOM.loadToDos(projectName);
             return;
-        }
-        
-        console.log(`${projectName} todo's clicked`);   
+        }  
     }
 
     static deleteToDo(projectName, toDoName) {
@@ -195,6 +196,10 @@ export default class DOM {
         document.getElementById(`todo-${toDoName}`).remove();
     }
 
+    static setToDoDate(e, projectName, toDoName) {
+        const dueDate = format(new Date(e.target.value), 'yyyy-MM-dd'); 
+        Storage.setToDoDate(projectName, toDoName, dueDate);
+        DOM.displaySpecificProjectsToDos(projectName);
+    }
 
-    
 }

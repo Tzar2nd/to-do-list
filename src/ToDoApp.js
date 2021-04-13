@@ -9,7 +9,7 @@ export default class ToDoApp {
     constructor() {
         this.projects = [];
         let defaultProject = new Project('Default Project', 'Default Project');
-        let defaultNote = new ToDo("default note", "Hello World", "01/03/2021", 1, "First to-do list task");
+        let defaultNote = new ToDo("default note");
         defaultProject.addToDo(defaultNote);
         this.projects.push(defaultProject);
     }
