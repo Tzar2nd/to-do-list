@@ -2,23 +2,27 @@
 <html>
 <head>
 <script src="https://kit.fontawesome.com/d2b6738dad.js" crossorigin="anonymous"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
     <div id="site-container">
         <header>
-            ToDo-ist
+            <i class="far fa-list-alt header-icon"></i>
+            ToDo-it
         </header>
         <div id='content-container'>
             <div id="toolbar">
-                <button>Today</button>
-                <button>This Week</button>
                 <div id='projects'>
                     <h2>Projects</h2>
                 </div>
-                <button id='new-project-button'>New Project</button>
+                <button id='new-project-button'>
+                    New Project
+                    <i class="fas fa-chevron-down chevron-icon-project"></i>
+                </button>
                 <div class='new-project-container hidden'>
-                    <input title='Enter a new project' placeholder='Project' id='input-project-name'></input>
+                    <input title='Enter a new project' placeholder='Enter a project name...' id='input-project-name'></input>
                     <div class='two-buttons'>
                         <button id='button-cancel-project'>Cancel</button>
                         <button id='button-save-project'>Save</button>
@@ -28,16 +32,20 @@
             <div id='content'>
                 <div id='content-header'>
                         <h2 id='project-name'>ToDo</h2>
-                        <button id='button-new-todo'>New ToDo</button>
+                </div>
+                    <div class='new-todo-area'>
+                        <button id='button-new-todo'>New ToDo
+                            <i class="fas fa-chevron-right chevron-icon-todo"></i>
+                        </button>
 
-                    <div class='new-todo-container hidden'>
-                        <input title='Enter a new ToDo' placeholder='Enter a task name...' id='input-todo-name'></input>
-                        <div class='two-buttons-todo'>
-                            <button id='button-cancel-todo'>Cancel</button>
-                            <button id='button-save-todo'>Save</button>
+                        <div class='new-todo-container hidden'>
+                            <input title='Enter a new ToDo' placeholder='Enter a task name...' id='input-todo-name'></input>
+                            <div class='two-buttons-todo'>
+                                <button id='button-cancel-todo'>Cancel</button>
+                                <button id='button-save-todo'>Save</button>
+                            </div>
                         </div>
                     </div>
-                </div>
                 <div id='content-body'>
                         
                 </div>
