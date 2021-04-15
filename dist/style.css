@@ -293,14 +293,17 @@ button:hover .delete-todo {
 
 .priority-1 {
     background: red;
+    color: red;
 }
 
 .priority-2 {
     background: orange;
+    color: orange;
 }
 
 .priority-3 {
     background: green;
+    color: green;
 }
 
 .fas {

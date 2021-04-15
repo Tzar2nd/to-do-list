@@ -216,7 +216,7 @@ export default class DOM {
         let checkBoxStatus = '';
         let activeStatus = '';
 
-        (todo.getStatus() === 'active') ? checkBoxStatus = 'fa-check-square' : checkBoxStatus = 'fa-square';
+        (todo.getStatus() === 'active') ? checkBoxStatus = 'fa-square' : checkBoxStatus = 'fa-check-square';
         (todo.getStatus() === 'active') ? activeStatus = '' : activeStatus = 'inactive';
 
         display.insertAdjacentHTML('beforeend',
@@ -266,13 +266,13 @@ export default class DOM {
         if (classList.contains('fa-check-square')) {
             classList.remove('fa-check-square');
             classList.add('fa-square');
-            todoDiv.classList.add('inactive');
-            status = 'inactive'
+            todoDiv.classList.remove('inactive');
+            status = 'active'
         } else if (classList.contains('fa-square')) {
             classList.remove('fa-square');
             classList.add('fa-check-square');
-            todoDiv.classList.remove('inactive');
-            status = 'active';
+            todoDiv.classList.add('inactive');
+            status = 'inactive';
         }
 
         Storage.setToDoStatus(projectName, toDoName, status);
