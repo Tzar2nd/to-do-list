@@ -51,11 +51,17 @@ export default class DOM {
     }
 
     static toggleHidden(elementName) {
-        const element = document.querySelector(elementName);
+        let element = document.getElementsByClassName(elementName)[0];
+
+        console.log('toggling');
+        console.log(element);
+        console.log("classlist:" + element.classList);
 
         if (element.classList.contains('hidden')) { 
+            console.log('removing hidden');
             element.classList.remove('hidden');
         } else {
+            console.log('adding hidden');
             element.classList.add('hidden');
         }
     }
@@ -71,11 +77,13 @@ export default class DOM {
             projectButton.classList.add('fa-chevron-down');
         }
 
-        DOM.toggleHidden('.new-project-container');
+        DOM.toggleHidden('new-project-container');
     }
 
     static toggleToDoInput() {
         const toDoButton = document.querySelector('.chevron-icon-todo');
+
+        console.log(toDoButton);
 
         if (toDoButton.classList.contains('fa-chevron-right')) {
             toDoButton.classList.remove('fa-chevron-right');
@@ -85,7 +93,7 @@ export default class DOM {
             toDoButton.classList.add('fa-chevron-right');
         }
 
-        DOM.toggleHidden('.new-todo-container');
+        DOM.toggleHidden('new-todo-container');
     }
     
     static attachProjectButtonListeners() {
@@ -104,8 +112,8 @@ export default class DOM {
         const toDoCancelButton = document.getElementById('button-cancel-todo');
 
         newToDoButton.addEventListener('click', e => DOM.toggleToDoInput());
-        toDoSaveButton.addEventListener('click', e => DOM.createAndDisplayToDo());
         toDoCancelButton.addEventListener('click', e => DOM.clearNewToDoInput());
+        toDoSaveButton.addEventListener('click', e => DOM.createAndDisplayToDo());
     }
 
     static createAndDisplayToDo() {
@@ -181,13 +189,13 @@ export default class DOM {
     }
 
     static clearNewToDoInput() {
-        document.getElementsByClassName('new-todo-container')[0].classList.add('hidden');
         document.getElementById("input-todo-name").value = '';
+        DOM.toggleToDoInput();
     }
     
     static clearNewProjectInput() {
-        document.getElementsByClassName("new-project-container")[0].classList.add('hidden');
         document.getElementById('input-project-name').value = '';
+        DOM.toggleProjectInput();
     }
 
     static clearToDos() {
