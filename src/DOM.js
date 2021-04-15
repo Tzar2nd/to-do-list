@@ -308,5 +308,4 @@ export default class DOM {
         Storage.setToDoDate(projectName, toDoName, dueDate);
         DOM.displaySpecificProjectsToDos(projectName);
     }
-
 }
