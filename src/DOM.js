@@ -6,11 +6,23 @@ import { format } from 'date-fns';
 export default class DOM {
 
     static loadUI() {
-        //Storage.deleteProject("test2");
         DOM.loadProjects();
         DOM.attachProjectButtonListeners();
         DOM.attachToDoEventListeners();
         DOM.displaySpecificProjectsToDos('Default Project');
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') DOM.closeAllDialogues() });
+    }
+
+    static closeAllDialogues() {
+        const projectDialogue = document.querySelector('.new-project-container');
+        const toDoDialogue = document.querySelector('.new-todo-container');
+
+        if (!toDoDialogue.classList.contains('hidden')) { 
+            DOM.toggleToDoInput() 
+            return; 
+        };
+        if (!projectDialogue.classList.contains('hidden')) { DOM.toggleProjectInput() };
+
     }
 
     static displaySpecificProjectsToDos(projectName) {
@@ -47,13 +59,41 @@ export default class DOM {
             element.classList.add('hidden');
         }
     }
+
+    static toggleProjectInput() {
+        const projectButton = document.querySelector('.chevron-icon-project');
+
+        if (projectButton.classList.contains('fa-chevron-down')) {
+            projectButton.classList.remove('fa-chevron-down');
+            projectButton.classList.add('fa-chevron-up');
+        } else {
+            projectButton.classList.remove('fa-chevron-up');
+            projectButton.classList.add('fa-chevron-down');
+        }
+
+        DOM.toggleHidden('.new-project-container');
+    }
+
+    static toggleToDoInput() {
+        const toDoButton = document.querySelector('.chevron-icon-todo');
+
+        if (toDoButton.classList.contains('fa-chevron-right')) {
+            toDoButton.classList.remove('fa-chevron-right');
+            toDoButton.classList.add('fa-chevron-left');
+        } else {
+            toDoButton.classList.remove('fa-chevron-left');
+            toDoButton.classList.add('fa-chevron-right');
+        }
+
+        DOM.toggleHidden('.new-todo-container');
+    }
     
     static attachProjectButtonListeners() {
         const newProjectButton = document.getElementById('new-project-button');
         const projectCancelButton = document.getElementById('button-cancel-project');
         const projectSaveButton = document.getElementById('button-save-project');
         
-        newProjectButton.addEventListener("click", e => DOM.toggleHidden('.new-project-container'));
+        newProjectButton.addEventListener("click", e => DOM.toggleProjectInput());
         projectCancelButton.addEventListener("click", e => DOM.clearNewProjectInput());
         projectSaveButton.addEventListener("click", e => DOM.createAndDisplayProject());
     }
@@ -63,7 +103,7 @@ export default class DOM {
         const toDoSaveButton = document.getElementById('button-save-todo');
         const toDoCancelButton = document.getElementById('button-cancel-todo');
 
-        newToDoButton.addEventListener('click', e => DOM.toggleHidden('.new-todo-container'));
+        newToDoButton.addEventListener('click', e => DOM.toggleToDoInput());
         toDoSaveButton.addEventListener('click', e => DOM.createAndDisplayToDo());
         toDoCancelButton.addEventListener('click', e => DOM.clearNewToDoInput());
     }
@@ -114,6 +154,11 @@ export default class DOM {
     }
 
     static deleteProject(projectName) {
+        if(projectName === 'Default Project') { 
+            alert('You can not delete the default project');
+            return; 
+        }
+
         Storage.deleteProject(projectName);
         document.getElementById(`project-${projectName}`).remove();
     }
@@ -159,14 +204,20 @@ export default class DOM {
     static displayToDo(projectName, todo) {
         const display = document.getElementById('content-body');
         const dueDate = todo.getDueDate();
+        const todoTitle = todo.getTitle();
+        let checkBoxStatus = '';
+        let activeStatus = '';
+
+        (todo.getStatus() === 'active') ? checkBoxStatus = 'fa-check-square' : checkBoxStatus = 'fa-square';
+        (todo.getStatus() === 'active') ? activeStatus = '' : activeStatus = 'inactive';
 
         display.insertAdjacentHTML('beforeend',
-        `<button class='button-todo' id='todo-${todo.getTitle()}'>
+        `<button class='button-todo ${activeStatus}' id='todo-${todo.getTitle()}'>
         <div>
-            <i class="far fa-check-square"></i>
+            <i class="far ${checkBoxStatus} todo-checkbox"></i>
         </div>
         <div>
-            <span>${ todo.getTitle() } </span>
+            <span>${ todoTitle }</span>
         </div>
         <div class='todo-buttons-right'>
             <p class='todo-priority'>${ todo.getPriority() }</p>
@@ -175,11 +226,20 @@ export default class DOM {
             <i class="fas fa-times delete-todo"></i>
         </div>
         </button>`);
+
+        DOM.colorToDoPriority(display.lastChild.querySelector('.todo-priority'), todo.getPriority());
+
+        let checkBox = display.lastChild.querySelector('.todo-checkbox');
+        checkBox.addEventListener('click', e => DOM.toggleCompleteToDo(e, projectName, todoTitle));
+
+        let priorityButton = display.lastChild.querySelector('.todo-priority');
+        priorityButton.addEventListener('click', e => DOM.togglePriority(e, projectName, todoTitle));
+
         let deleteButton = display.lastChild.querySelector('.delete-todo');
-        deleteButton.addEventListener('click', e => DOM.handleToDoClick(e, projectName, todo.getTitle()));
+        deleteButton.addEventListener('click', e => DOM.handleToDoClick(e, projectName, todoTitle));
 
         let dateInput = display.lastChild.querySelector('.input-date');
-        dateInput.addEventListener('change', e => DOM.setToDoDate(e, projectName, todo.getTitle()));
+        dateInput.addEventListener('change', e => DOM.setToDoDate(e, projectName, todoTitle));
     }
 
     static handleToDoClick(e, projectName, toDoName) {
@@ -187,8 +247,55 @@ export default class DOM {
             DOM.deleteToDo(projectName, toDoName);
             DOM.clearToDos();
             DOM.loadToDos(projectName);
-            return;
         }  
+    }
+
+    static toggleCompleteToDo(e, projectName, toDoName) {
+        const classList = e.target.classList; 
+        let todoDiv = e.target.parentNode.parentNode; // todo container
+        let status = '';
+
+        if (classList.contains('fa-check-square')) {
+            classList.remove('fa-check-square');
+            classList.add('fa-square');
+            todoDiv.classList.add('inactive');
+            status = 'inactive'
+        } else if (classList.contains('fa-square')) {
+            classList.remove('fa-square');
+            classList.add('fa-check-square');
+            todoDiv.classList.remove('inactive');
+            status = 'active';
+        }
+
+        Storage.setToDoStatus(projectName, toDoName, status);
+    }
+
+    static togglePriority(e, projectName, toDoName) {
+        let priority = Number(e.target.textContent);
+
+        (priority < 3) ? priority++ : priority = 1;
+        e.target.textContent = priority; 
+        Storage.setPriority(projectName, toDoName, priority);
+
+        DOM.colorToDoPriority(e.target, priority);
+    }
+
+    static colorToDoPriority(priorityDiv, priority) {
+        priorityDiv.classList.remove('priority-1');
+        priorityDiv.classList.remove('priority-2');
+        priorityDiv.classList.remove('priority-3');
+
+        switch (priority) {
+            case 1:
+                priorityDiv.classList.add('priority-1')
+                break;
+            case 2:
+                priorityDiv.classList.add('priority-2')
+                break;
+            case 3:
+                priorityDiv.classList.add('priority-3')
+                break;
+        }
     }
 
     static deleteToDo(projectName, toDoName) {

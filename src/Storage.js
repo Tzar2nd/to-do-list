@@ -15,17 +15,15 @@ export default class Storage {
 
         // assign projects
         toDoApp.setProjects(
-            toDoApp
-                .getProjects()
-                .map((project) => Object.assign(new Project(), project))
+            toDoApp.getProjects().map(project => 
+                Object.assign(new Project(), project))
         );
 
         // assign todos
-        toDoApp
-            .getProjects()
-            .forEach((project) => 
-                project.setToDos(
-                    project.getToDos().map(todo => Object.assign(new ToDo(), todo))
+        toDoApp.getProjects()
+            .forEach(project => 
+                project.setToDos(project.getToDos().map(todo => 
+                        Object.assign(new ToDo(), todo))
                 )
             );
 
@@ -63,5 +61,18 @@ export default class Storage {
         Storage.saveToDoState(toDoApp);
     }
 
+    static setToDoStatus(projectName, toDoName, status) {
+        const toDoApp = Storage.getToDoState(); 
+        const todo = toDoApp.getProject(projectName).getToDo(toDoName);
+        todo.setStatus(status);
+        Storage.saveToDoState(toDoApp);
+    }
+
+    static setPriority(projectName, toDoName, priority) {
+        const toDoApp = Storage.getToDoState(); 
+        const todo = toDoApp.getProject(projectName).getToDo(toDoName);
+        todo.setPriority(priority);
+        Storage.saveToDoState(toDoApp);
+    }
 
 }

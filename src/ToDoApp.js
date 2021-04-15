@@ -1,13 +1,13 @@
-// The ToDo list app main logic code as differentiated from the DOM updates
-// It also implements initial default data
-
 import Project from './Project';
 import ToDo from './ToDo';
-import { format, parseISO } from 'date-fns'
 
 export default class ToDoApp {
     constructor() {
         this.projects = [];
+        this.addDefaultProject();
+    }
+
+    addDefaultProject() {
         let defaultProject = new Project('Default Project', 'Default Project');
         let defaultNote = new ToDo("default note");
         defaultProject.addToDo(defaultNote);
@@ -35,13 +35,8 @@ export default class ToDoApp {
     }
 
     deleteProject(projectDelete) {
-        console.log('trying to delete' + projectDelete);
         const project = this.projects.find(project => project.getName() === projectDelete);
 
-        console.log(`definately deleting ${project}`);
         this.projects.splice(this.projects.indexOf(project),1);
     }
 }
-
-
-
